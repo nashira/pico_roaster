@@ -6,8 +6,8 @@
 #define INIT_DELAY_US 500'000
 #define SAMPLE_DELAY_US ftous(10)
 #define DEG_C_PER_MIN 20.0
-#define PROBE_1_PIN 0
-#define PROBE_2_PIN 1
+#define PROBE_1_PIN 1
+#define PROBE_2_PIN 4
 
 float temperature1();
 float temperature2();

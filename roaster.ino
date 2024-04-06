@@ -7,7 +7,6 @@
 
 void setup() {
   Serial.begin();
-  while(!Serial);
 
   core0_init();
   

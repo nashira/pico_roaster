@@ -2,8 +2,8 @@
 #include <Adafruit_MAX31855.h>
 #include <CircularBuffer.hpp>
 
-static Adafruit_MAX31855 probe1(PROBE_1_PIN, &SPI1);
-static Adafruit_MAX31855 probe2(PROBE_2_PIN, &SPI1);
+static Adafruit_MAX31855 probe1(PROBE_1_PIN, &SPI);
+static Adafruit_MAX31855 probe2(PROBE_2_PIN, &SPI);
 
 static CircularBuffer<float,30> buffer1;
 static CircularBuffer<float,30> buffer2;
@@ -40,6 +40,9 @@ void temperature_init() {
 }
 
 void on_temperature_init(void *data) {
+  SPI.setRX(0);
+  SPI.setTX(3);
+  SPI.setSCK(2);
   probe1.begin();
   probe2.begin();
 

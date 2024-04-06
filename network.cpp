@@ -23,15 +23,15 @@ static task_t network_on_wifi_connect_task = {
 
 static task_t network_check_status_task = {
   .execute = network_check_status,
-  .period_us = ftous(2)
+  .period_us = -ftous(2)
 };
 
 void network_init() {
-  Serial.println("network_init");
+  // Serial.println("network_init");
   Serial1.setTX(16);
   Serial1.setRX(17);
   Serial1.begin(115200);
-  WiFi.init(Serial1, 18);
+  WiFi.init(Serial1, 22);
   WiFi.setHostname("kaldi");
   core0_schedule(0, &network_check_status_task);
 }
@@ -49,7 +49,7 @@ void network_check_status(void *data) {
 }
 
 void network_on_wifi_connect(void *data) {
-  Serial.println("network_on_wifi_connect");
+  // Serial.println("network_on_wifi_connect");
   Serial1.begin(1'000'000);
   server.begin(5, 60);
 }
@@ -60,7 +60,6 @@ void network_serve_clients() {
   WiFiClient client = server.accept();
 
   if (client) {
-    Serial.println("have client");
     for (int i = 0; i < 5; i++) {
       if (!(request[i].client)) {
         Serial.print("connect client #");
@@ -108,7 +107,8 @@ void handle_request(Request &req) {
 
   } else if (req.path_len == 1 && strncmp(req.path, "/", 1) == 0) {
     
-    size_t size = snprintf(req.buf, sizeof(req.buf) - 1, "t1: %f, t2: %f, t1dx: %f, t2dx: %f, v: %f, a: %f\n",
+    size_t size = snprintf(req.buf, sizeof(req.buf) - 1, "t: %llu, t1: %f, t2: %f, t1dx: %f, t2dx: %f, v: %f, a: %f\n",
+      time_us_64(),
       temperature1(),
       temperature2(),
       temperature1_dx(),
@@ -173,7 +173,6 @@ void websocket_disconnect(Request &req) {
   req.client.flush();
   req.websocket = false;
   req.reset();
-  req.client.stop();
 }
 
 void websocket_decode_message(Request &req) {
@@ -184,16 +183,16 @@ void websocket_decode_message(Request &req) {
 
   msgtype = req.client.read();
 
-  if (msgtype == 136) {
+  if (msgtype == 0x88) {
     websocket_disconnect(req);
     return;
   }
 
-  length = req.client.read() & 127;
+  length = req.client.read() & 0x7F;
 
-  if (length == 126) {
+  if (length == 0x7E) {
       length = (req.client.read() << 8) | req.client.read();
-  } else if (length == 127) {
+  } else if (length == 0x7F) {
     // TODO large msg
   }
 
@@ -215,7 +214,7 @@ void websocket_send_message(Request &req) {
 
   // TODO: large msg
   if (size > 125) {
-      req.client.write(126);
+      req.client.write(0x7E);
       req.client.write((uint8_t) (size >> 8));
       req.client.write((uint8_t) (size && 0xFF));
   } else {
@@ -235,6 +234,8 @@ void websocket_handle_message(Request &req) {
   json["id"] = id;
   json["d"]["bt"] = temperature1();
   json["d"]["et"] = temperature2();
+  json["d"]["fan"] = sensors_voltage();
+  json["d"]["gas"] = sensors_angle();
   json["d"]["ts"] = millis();
   req.buflen = serializeJson(json, req.buf);
   websocket_send_message(req);

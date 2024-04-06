@@ -3,6 +3,10 @@
 void Request::reset() {
   buflen = 0;
   prevbuflen = 0;
+  method_len = 0;
+  path_len = 0;
+  num_headers = 0;
+  num_params = 0;
 }
 
 void Request::parseParams() {

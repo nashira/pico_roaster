@@ -2,8 +2,9 @@
 #define _SENSORS_H_
 #include "os.h"
 
-#define VOLTAGE_PIN 28
-#define VOLTAGE_GAIN 0.001f
+#define VOLTAGE_PIN 27
+#define VOLTAGE_GAIN 0.005f
+#define ANGLE_GAIN 0.005f
 
 void sensors_init();
 float sensors_voltage();
