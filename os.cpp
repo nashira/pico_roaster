@@ -42,16 +42,16 @@ void core0_schedule(uint64_t delay_us, task_t *task) {
   delay_us = max(delay_us, MIN_ALARM_SCHEDULE_US);
   task->alarm_id = alarm_pool_add_alarm_in_us(core0_alarm_pool, delay_us, core0_alarm_handler, task, true);
   Serial.printf("core0 delay: %d, ", delay_us);
-  Serial.printf("core0 period: %d, ", task->period_us);
-  Serial.printf("core0 alarm id: %d\n", task->alarm_id);
+  Serial.printf("period: %d, ", task->period_us);
+  Serial.printf("alarm id: %d\n", task->alarm_id);
 }
 
 void core1_schedule(uint64_t delay_us, task_t *task) {
   delay_us = max(delay_us, MIN_ALARM_SCHEDULE_US);
   task->alarm_id = alarm_pool_add_alarm_in_us(core1_alarm_pool, delay_us, core1_alarm_handler, task, true);
   Serial.printf("core1 delay: %d, ", delay_us);
-  Serial.printf("core1 period: %d, ", task->period_us);
-  Serial.printf("core1 alarm id: %d\n", task->alarm_id);
+  Serial.printf("period: %d, ", task->period_us);
+  Serial.printf("alarm id: %d\n", task->alarm_id);
 }
 
 bool core0_cancel(alarm_id_t alarm_id) {

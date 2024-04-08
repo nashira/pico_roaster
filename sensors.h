@@ -4,7 +4,7 @@
 
 #define VOLTAGE_PIN 27
 #define VOLTAGE_GAIN 0.005f
-#define ANGLE_GAIN 0.005f
+#define ANGLE_GAIN 0.01f
 
 void sensors_init();
 float sensors_voltage();

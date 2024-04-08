@@ -10,6 +10,7 @@
 static WiFiServer server(80);
 static Request request[5];
 static JsonDocument json;
+static unsigned long long capture_time;
 
 void network_on_wifi_connect(void *data);
 void network_check_status(void *data);
@@ -229,15 +230,20 @@ void websocket_handle_message(Request &req) {
 
   deserializeJson(json, req.buf, req.buflen);
   long id = json["id"];
+  String c = json["c"];
   json.clear();
 
-  json["id"] = id;
-  json["d"]["bt"] = temperature1();
-  json["d"]["et"] = temperature2();
-  json["d"]["fan"] = sensors_voltage();
-  json["d"]["gas"] = sensors_angle();
-  json["d"]["ts"] = millis();
-  req.buflen = serializeJson(json, req.buf);
-  websocket_send_message(req);
+  if (c == "d") {
+    json["id"] = id;
+    json["d"]["bt"] = temperature1();
+    json["d"]["et"] = temperature2();
+    json["d"]["fan"] = sensors_voltage();
+    json["d"]["gas"] = sensors_angle();
+    json["d"]["ts"] = millis() - capture_time;
+    req.buflen = serializeJson(json, req.buf);
+    websocket_send_message(req);
+  } else if (c == "reset_capture_time") {
+    capture_time = millis();
+  }
 }
 
