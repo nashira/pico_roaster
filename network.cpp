@@ -176,42 +176,50 @@ void websocket_disconnect(Request &req) {
   req.reset();
 }
 
-void websocket_decode_message(Request &req) {
+uint8_t websocket_decode_message(Request &req) {
   uint8_t msgtype;
   unsigned int length;
   uint8_t mask[4];
   unsigned int i;
 
-  msgtype = req.client.read();
+  msgtype = req.readBlocking();
 
   if (msgtype == 0x88) {
-    websocket_disconnect(req);
-    return;
+    return msgtype;
   }
 
-  length = req.client.read() & 0x7F;
+  uint8_t byte2 = req.readBlocking();
+  uint8_t mask_bit = byte2 & 0x80;
+
+  length = byte2 & 0x7F;
 
   if (length == 0x7E) {
-      length = (req.client.read() << 8) | req.client.read();
+      length = (req.readBlocking() << 8) | req.readBlocking();
   } else if (length == 0x7F) {
     // TODO large msg
   }
 
   length = min(length, 1024);
 
-  req.client.readBytes(mask, 4);
+  if (mask_bit) {
+    req.client.readBytes(mask, 4);
+  }
+
   req.client.readBytes(req.buf, length);
 
-  for (i = 0; i < length; ++i) {
-    req.buf[i] ^= mask[i % 4];
+  if (mask_bit) {
+    for (i = 0; i < length; ++i) {
+      req.buf[i] ^= mask[i % 4];
+    }
   }
   req.buflen = length;
+  return msgtype;
 }
 
-void websocket_send_message(Request &req) {
+void websocket_send_message(uint8_t msg_type, Request &req) {
   int size = req.buflen;
-  // string msg type
-  req.client.write(0x81);
+  
+  req.client.write(msg_type);
 
   // TODO: large msg
   if (size > 125) {
@@ -223,15 +231,29 @@ void websocket_send_message(Request &req) {
   }
 
   req.client.write(req.buf, req.buflen);
+  req.client.flush();
 }
 
 void websocket_handle_message(Request &req) {
-  websocket_decode_message(req);
+  uint8_t msg_type = websocket_decode_message(req);
+
+  if (msg_type == 0x88) {
+    websocket_disconnect(req);
+    return;
+  }
+
+  if (msg_type == 0x89) {
+    websocket_send_message(0x8A, req);
+    return;
+  }
 
   deserializeJson(json, req.buf, req.buflen);
   long id = json["id"];
   String c = json["c"];
   json.clear();
+
+  // Serial.printf("%d : ", id);
+  // Serial.println(c);
 
   if (c == "d") {
     json["id"] = id;
@@ -241,7 +263,7 @@ void websocket_handle_message(Request &req) {
     json["d"]["gas"] = sensors_angle();
     json["d"]["ts"] = millis() - capture_time;
     req.buflen = serializeJson(json, req.buf);
-    websocket_send_message(req);
+    websocket_send_message(0x81, req);
   } else if (c == "reset_capture_time") {
     capture_time = millis();
   }

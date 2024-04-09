@@ -130,3 +130,11 @@ void Request::send(int status, const char *contentType, uint8_t *body, size_t si
   client.write(body, size);
   client.flush();
 }
+
+uint8_t Request::readBlocking() {
+  char b[1];
+  if (client.readBytes(b, 1) != 1) {
+    return -1;
+  }
+  return b[0];
+}

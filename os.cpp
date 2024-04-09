@@ -27,6 +27,7 @@ int64_t core1_alarm_handler(alarm_id_t id, void *user_data) {
   return c->period_us;
 }
 
+// must be called from core0
 void core0_init() {
   core0_alarm_pool = alarm_pool_create_with_unused_hardware_alarm(32);
   queue_init(&core0_queue, sizeof(task_t), 32);

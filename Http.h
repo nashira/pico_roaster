@@ -44,6 +44,7 @@ public:
   void reset();
   int parse();
   void send(int status, const char *contentType, uint8_t *body, size_t size);
+  uint8_t readBlocking();
 
 private:
 
