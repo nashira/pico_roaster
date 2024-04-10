@@ -2,6 +2,7 @@
 #define _TEMPERATURE_H_
 #include "os.h"
 
+#define TEMPERATURE_CORE CORE1
 #define GAIN 0.005
 #define INIT_DELAY_US 500'000
 #define SAMPLE_DELAY_US ftous(10)

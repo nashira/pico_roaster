@@ -45,22 +45,30 @@ public:
   int parse();
   void send(int status, const char *contentType, uint8_t *body, size_t size);
   uint8_t readBlocking();
+  void websocketHandshake();
+  void websocketSend(uint8_t msg_type, uint8_t *body, size_t size);
+  uint8_t websocketParse();
+  void websocketDisconnect();
 
 private:
 
   void parseParams();
 };
 
+typedef void(*HttpRequestHandler)(Request &request);
+typedef void(*WebSocketMessageHandler)(uint8_t msgType, Request &request);
 
-// class HttpServer {
+class HttpServer {
 
-// public:
-//   void accept(int id, Client *client);
+public:
+  void begin(WiFiServer &server, HttpRequestHandler http, WebSocketMessageHandler websocket);
+  void poll();
 
-
-// private:
-//   WiFiServer *server;
-//   Request **requests;
-// };
+private:
+  WiFiServer server;
+  Request request[5];
+  HttpRequestHandler httpRequestHandler;
+  WebSocketMessageHandler websocketMessageHandler;
+};
 
 #endif

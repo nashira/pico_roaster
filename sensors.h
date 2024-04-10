@@ -6,6 +6,8 @@
 #define VOLTAGE_GAIN 0.005f
 #define ANGLE_GAIN 0.01f
 
+#define SENSORS_CORE CORE1
+
 void sensors_init();
 float sensors_voltage();
 float sensors_angle();

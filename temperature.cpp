@@ -36,7 +36,7 @@ float temperature2_dx() {
 }
 
 void temperature_init() {
-  core1_schedule(INIT_DELAY_US, &on_temperature_init_task);
+  task_schedule(TEMPERATURE_CORE, INIT_DELAY_US, &on_temperature_init_task);
 }
 
 void on_temperature_init(void *data) {
@@ -53,7 +53,7 @@ void on_temperature_init(void *data) {
     buffer2.push(temp2);
   }
 
-  core1_schedule(0, &read_probes_task);
+  task_schedule(TEMPERATURE_CORE, 0, &read_probes_task);
 }
 
 void read_probes(void *data) {

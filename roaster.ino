@@ -8,24 +8,24 @@
 void setup() {
   Serial.begin();
 
-  core0_init();
+  core_init(CORE0);
   
   network_init();
   display_init();
 
   while(true) {
-    core0_execute();
+    task_execute(CORE0);
     network_serve_clients();
   }
 }
 
 void setup1() {
-  core1_init();
+  core_init(CORE1);
 
   temperature_init();
   sensors_init();
 
-  while(true) core1_execute();
+  while(true) task_execute(CORE1);
 }
 
 void loop() {

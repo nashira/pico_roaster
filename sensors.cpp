@@ -27,8 +27,8 @@ void sensors_init() {
 
   analogReadResolution(12);
 
-  core1_schedule(0, &sensors_read_as5600_task);
-  core1_schedule(0, &sensors_read_voltage_task);
+  task_schedule(SENSORS_CORE, 0, &sensors_read_as5600_task);
+  task_schedule(SENSORS_CORE, 0, &sensors_read_voltage_task);
 }
 
 void sensors_read_as5600(void *data) {

@@ -23,7 +23,7 @@ void display_init() {
   display.begin();
   display.setFont(u8g2_font_helvB18_tr);
 
-  core0_schedule(0, &display_draw_task);
+  task_schedule(DISPLAY_CORE, 0, &display_draw_task);
 }
 
 void display_draw(void *data) {
@@ -54,11 +54,9 @@ void display_draw(void *data) {
 
   int line3_y =  y2;
   display.setCursor(x1, line3_y);
-  display.print(sensors_voltage(), 1);
-  display.print("v");
+  display.print(sensors_voltage(), 2);
 
-  dtostrf(sensors_angle(), 1, 1, str);
-  strcat(str, "a");
+  dtostrf(sensors_angle(), 1, 2, str);
   w = display.getStrWidth(str);
   display.setCursor(x2-w, line3_y);
   display.print(str);
