@@ -1,6 +1,6 @@
 #include "Http.h"
-#include "src/sha1.h"
-#include "src/Base64.h"
+#include "sha1.h"
+#include "Base64.h"
 
 void Request::reset() {
   buflen = 0;
@@ -14,7 +14,7 @@ void Request::reset() {
 void Request::parseParams() {
   char *buf = path;
   size_t size = path_len;
-  
+
   const int Before = 0;
   const int Start = 1;
   const int Name = 2;
@@ -24,7 +24,7 @@ void Request::parseParams() {
   int state = Before;
 
   char *start = buf;
-  char *end = buf + size;  
+  char *end = buf + size;
   int i = -1;
 
   num_params = 0;
@@ -89,7 +89,7 @@ void Request::parseParams() {
 
     ++start;
   }
-  
+
   switch(state) {
     case Name: {
       params[i].name_len = start - params[i].name;
@@ -120,7 +120,7 @@ int Request::parse() {
 void Request::send(int status, const char *contentType, uint8_t *body, size_t size) {
   client.print("HTTP/1.1 ");
   client.println(status);
-  
+
   client.print("Content-Type: ");
   client.println(contentType);
 
@@ -154,7 +154,7 @@ void Request::websocketHandshake() {
       break;
     }
   }
-  
+
   if (found) {
     Sha1.init();
     Sha1.print(key);
@@ -221,7 +221,7 @@ uint8_t Request::websocketParse() {
 }
 
 void Request::websocketSend(uint8_t msg_type, uint8_t *body, size_t size) {
-  
+
   client.write(msg_type);
 
   // TODO: large msg
